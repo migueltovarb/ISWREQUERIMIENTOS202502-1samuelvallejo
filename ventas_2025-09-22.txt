@@ -1,0 +1,12 @@
+
+2025-09-22 11:55:36.404744 - jorge - Total: $0.0
+
+2025-09-22 11:56:57.059144 - samuel - Total: $15300.0
+   arroz_con_huevo  $10000
+   cafe  $3000
+   croissant  $4000
+
+2025-09-22 11:59:10.396367 - samuel - Total: $10000
+   galletas  $3000
+   cafe  $3000
+   croissant  $4000
