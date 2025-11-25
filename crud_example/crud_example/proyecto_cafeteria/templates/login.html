@@ -1,0 +1,121 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar sesión · Cafetería</title>
+    <style>
+        body {
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            background: #f6f1e8;
+            color: #3b2a22;
+        }
+        .card {
+            background: #ffffff;
+            border-radius: 18px;
+            padding: 24px 28px;
+            box-shadow: 0 14px 30px rgba(0,0,0,0.08);
+            width: 360px;
+            max-width: 90vw;
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: #4b2e1f;
+        }
+        h1 {
+            text-align: center;
+            font-size: 1.3rem;
+            margin: 0 0 18px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        label {
+            font-size: .85rem;
+            margin-bottom: 4px;
+        }
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 8px 10px;
+            border-radius: 999px;
+            border: 1px solid #e0d4c4;
+            font-size: .9rem;
+        }
+        button {
+            margin-top: 8px;
+            border: none;
+            border-radius: 999px;
+            padding: 9px 12px;
+            background: #ff6b35;
+            color: #fff;
+            font-size: .95rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+        }
+        .errorlist {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 6px;
+            font-size: .8rem;
+            color: #c0392b;
+        }
+        .help {
+            margin-top: 10px;
+            font-size: .8rem;
+            text-align: center;
+            color: #7a5b45;
+        }
+    </style>
+</head>
+<body>
+<div class="card">
+    <div class="logo">CAFETERÍA · Sistema de Pedidos</div>
+    <h1>Iniciar sesión</h1>
+
+    {% if form.errors %}
+        <ul class="errorlist">
+        {% for field in form %}
+            {% for error in field.errors %}
+                <li>{{ error }}</li>
+            {% endfor %}
+        {% endfor %}
+        {% for error in form.non_field_errors %}
+            <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+    {% endif %}
+
+    <form method="post" action="">
+        {% csrf_token %}
+        <label for="{{ form.username.id_for_label }}">Usuario</label>
+        {{ form.username }}
+
+        <label for="{{ form.password.id_for_label }}">Contraseña</label>
+        {{ form.password }}
+
+        <button type="submit">Entrar</button>
+
+        {% if next %}
+            <input type="hidden" name="next" value="{{ next }}">
+        {% endif %}
+    </form>
+
+    <p class="help">
+        Usa tu usuario y contraseña creados en el admin.<br>
+        (Ej: creado con <code>createsuperuser</code>).
+    </p>
+</div>
+</body>
+</html>

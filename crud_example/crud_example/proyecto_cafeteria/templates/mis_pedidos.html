@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+
+{% block title %}Mis pedidos - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .orders-wrapper { max-width: 1100px; margin: 0 auto; }
+    .orders-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .orders-header h1 { font-size: 2rem; font-weight: 900; color: var(--dark); }
+    .orders-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.25rem; }
+    .order-card { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 8px 25px rgba(0,0,0,0.07); }
+    .order-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }
+    .order-number { font-weight: 800; color: var(--secondary); }
+    .badge { padding: 0.35rem 0.7rem; border-radius: 10px; font-weight: 700; font-size: 0.85rem; color: white; }
+    .badge-pendiente { background: var(--warning); }
+    .badge-en_preparacion { background: #fdcb6e; color: #2d3436; }
+    .badge-listo { background: var(--success); }
+    .badge-entregado { background: #0984e3; }
+    .badge-pagado { background: var(--info); }
+    .order-meta { color: #636e72; font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .order-total { font-size: 1.35rem; font-weight: 900; color: var(--success); margin-top: 0.5rem; }
+    .order-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .btn-ghost { flex: 1; padding: 0.85rem; border: 2px solid var(--secondary); border-radius: 12px; background: transparent; color: var(--secondary); font-weight: 800; text-decoration: none; text-align: center; }
+    .btn-solid { flex: 1; padding: 0.85rem; border-radius: 12px; background: linear-gradient(135deg, var(--success), #55efc4); color: white; font-weight: 800; text-decoration: none; text-align: center; }
+    .empty { text-align: center; padding: 3rem 1rem; color: #636e72; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="orders-wrapper">
+    <div class="orders-header">
+        <h1>Mis pedidos</h1>
+        <a class="btn" style="background: linear-gradient(135deg, var(--secondary), #a29bfe); color: white; border-radius: 12px; padding: 0.85rem 1.5rem; font-weight: 800; text-decoration: none;" href="{% url 'cafeteria:menu_principal' %}">Volver al menú</a>
+    </div>
+
+    {% if pedidos %}
+    <div class="orders-grid">
+        {% for pedido in pedidos %}
+        <div class="order-card">
+            <div class="order-top">
+                <div class="order-number">{{ pedido.numero_pedido }}</div>
+                <span class="badge badge-{{ pedido.estado }}">{{ pedido.get_estado_display }}</span>
+            </div>
+            <div class="order-meta">Creado: {{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</div>
+            <div class="order-meta">Método: {{ pedido.metodo_pago|title }}</div>
+            <div class="order-meta">Items: {{ pedido.items.count }}</div>
+            <div class="order-total">${{ pedido.total|floatformat:0 }}</div>
+            <div class="order-actions">
+                <a class="btn-ghost" href="{% url 'cafeteria:menu_principal' %}">Hacer otro pedido</a>
+                <a class="btn-solid" href="{% url 'cafeteria:confirmacion_pedido' pedido.id %}">Detalle</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty">
+        <div style="font-size: 3rem;">🛒</div>
+        <p>No tienes pedidos aún.</p>
+        <a class="btn" style="margin-top: 1rem; background: linear-gradient(135deg, var(--secondary), #a29bfe); color: white; border-radius: 12px; padding: 0.85rem 1.5rem; font-weight: 800; text-decoration: none;" href="{% url 'cafeteria:menu_principal' %}">Ir al menú</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

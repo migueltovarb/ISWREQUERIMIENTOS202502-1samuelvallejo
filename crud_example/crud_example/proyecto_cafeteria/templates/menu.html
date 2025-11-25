@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+
+{% block title %}Menú - Cafetería Campus{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Banner de promoción */
+    .promo-banner {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 20px;
+        text-align: center;
+        margin-bottom: 2rem;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        animation: slideIn 0.5s ease;
+    }
+
+    .promo-banner h3 {
+        font-size: 1.75rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .promo-discount {
+        font-size: 3rem;
+        font-weight: 900;
+        text-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Barra de búsqueda */
+    .search-section {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 20px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .search-box {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .search-box input {
+        flex: 1;
+        padding: 1rem 1.5rem;
+        border: 2px solid var(--light);
+        border-radius: 12px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .search-box input:focus {
+        outline: none;
+        border-color: var(--secondary);
+        box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.1);
+    }
+
+    .search-box button {
+        padding: 1rem 2rem;
+        background: linear-gradient(135deg, var(--secondary), #a29bfe);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .search-box button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(108, 92, 231, 0.4);
+    }
+
+    /* Categorías */
+    .categories {
+        display: flex;
+        gap: 1rem;
+        overflow-x: auto;
+        padding: 1rem 0;
+        margin-bottom: 2rem;
+        scrollbar-width: thin;
+    }
+
+    .categories::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .categories::-webkit-scrollbar-thumb {
+        background: var(--secondary);
+        border-radius: 10px;
+    }
+
+    .category-chip {
+        padding: 0.875rem 2rem;
+        background: white;
+        border: 2px solid var(--light);
+        border-radius: 25px;
+        cursor: pointer;
+        white-space: nowrap;
+        font-weight: 700;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        color: var(--dark);
+    }
+
+    .category-chip:hover {
+        border-color: var(--secondary);
+        color: var(--secondary);
+        transform: translateY(-2px);
+    }
+
+    .category-chip.active {
+        background: linear-gradient(135deg, var(--secondary), #a29bfe);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    /* Grid de productos */
+    .products-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .product-card {
+        background: white;
+        border-radius: 20px;
+        overflow: hidden;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+    }
+
+    .product-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    .product-image-container {
+        position: relative;
+        width: 100%;
+        height: 220px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .product-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .product-card:hover .product-image {
+        transform: scale(1.1);
+    }
+
+    .product-status {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 0.85rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .status-available {
+        background: rgba(0, 184, 148, 0.9);
+        color: white;
+    }
+
+    .status-sold-out {
+        background: rgba(214, 48, 49, 0.9);
+        color: white;
+    }
+
+    .product-body {
+        padding: 1.5rem;
+    }
+
+    .product-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .product-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: var(--dark);
+        line-height: 1.3;
+    }
+
+    .product-price {
+        font-size: 1.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .product-description {
+        color: #636e72;
+        line-height: 1.6;
+        margin-bottom: 1.5rem;
+        max-height: 3.2em;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+    }
+
+    .product-action {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .product-action:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.4);
+    }
+
+    .product-action:disabled {
+        background: #b2bec3;
+        cursor: not-allowed;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        color: #636e72;
+    }
+
+    .empty-state-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+        opacity: 0.3;
+    }
+
+    .add-to-cart-form {
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Banner de promoción para estudiantes -->
+{% if promocion_aplicable %}
+<div class="promo-banner">
+    <h3>🎓 ¡Promoción Exclusiva para Estudiantes!</h3>
+    <div class="promo-discount">{{ promocion_aplicable.porcentaje_descuento }}% OFF</div>
+    <p>{{ promocion_aplicable.descripcion }}</p>
+</div>
+{% endif %}
+
+<!-- Búsqueda -->
+<div class="search-section">
+    <form method="GET" class="search-box">
+        {# mantener la categoría seleccionada al buscar #}
+        {% if categoria_seleccionada %}
+            <input type="hidden" name="categoria" value="{{ categoria_seleccionada }}">
+        {% endif %}
+        <input type="text"
+               name="busqueda"
+               placeholder="🔍 Buscar productos, categorías..."
+               value="{{ busqueda }}"
+               autocomplete="off">
+        <button type="submit">Buscar</button>
+    </form>
+</div>
+
+<!-- Categorías -->
+<div class="categories">
+    <a href="{% url 'cafeteria:menu_principal' %}"
+       class="category-chip {% if not categoria_seleccionada %}active{% endif %}">
+        🍽️ Todos
+    </a>
+    {% for categoria in categorias %}
+    <a href="?categoria={{ categoria.id }}{% if busqueda %}&busqueda={{ busqueda }}{% endif %}"
+       class="category-chip {% if categoria_seleccionada == categoria.id|stringformat:'s' %}active{% endif %}">
+        {{ categoria.nombre }}
+    </a>
+    {% endfor %}
+</div>
+
+<!-- Grid de productos -->
+<div class="products-grid">
+    {% for producto in productos %}
+    <div class="product-card"
+         data-detail-url="{% url 'cafeteria:detalle_producto' producto.id %}"
+         onclick="openProductDetail(this.dataset.detailUrl)">
+        <div class="product-image-container">
+            {% if producto.imagen %}
+            <img src="{{ producto.imagen.url }}" alt="{{ producto.nombre }}" class="product-image">
+            {% else %}
+            <div class="product-image"
+                 style="display: flex; align-items: center; justify-content: center; font-size: 4rem;">
+                ☕
+            </div>
+            {% endif %}
+            
+            <div class="product-status {% if producto.disponibilidad == 'disponible' %}status-available{% else %}status-sold-out{% endif %}">
+                {% if producto.disponibilidad == 'disponible' %}
+                ✓ Disponible
+                {% else %}
+                ✗ Agotado
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="product-body">
+            <div class="product-header">
+                <h3 class="product-title">{{ producto.nombre }}</h3>
+                <div class="product-price">${{ producto.precio_base|floatformat:0 }}</div>
+            </div>
+            
+            <p class="product-description">{{ producto.descripcion }}</p>
+
+            {# Formulario rápido para agregar 1 unidad al carrito #}
+            <form method="post"
+                  action="{% url 'cafeteria:agregar_al_carrito' %}"
+                  class="add-to-cart-form"
+                  onclick="event.stopPropagation();">
+                {% csrf_token %}
+                <input type="hidden" name="producto_id" value="{{ producto.id }}">
+                <input type="hidden" name="cantidad" value="1">
+                <button class="product-action"
+                        type="submit"
+                        {% if producto.disponibilidad != 'disponible' %}disabled{% endif %}>
+                    {% if producto.disponibilidad == 'disponible' %}
+                    🛒 Agregar al carrito
+                    {% else %}
+                    No disponible
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+    {% empty %}
+    <div class="empty-state" style="grid-column: 1/-1;">
+        <div class="empty-state-icon">🔍</div>
+        <h3>No se encontraron productos</h3>
+        <p>Intenta con otra búsqueda o categoría</p>
+    </div>
+    {% endfor %}
+</div>
+
+<!-- Modal de detalle -->
+<div id="productModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Detalle del producto</h2>
+            <button class="modal-close" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body" id="modalBody">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Cargando...</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ahora recibe directamente la URL generada por Django
+    function openProductDetail(url) {
+        const modal = document.getElementById('productModal');
+        modal.classList.add('active');
+        
+        fetch(url)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const content = doc.querySelector('.product-detail-content');
+                if (content) {
+                    document.getElementById('modalBody').innerHTML = content.innerHTML;
+                } else {
+                    document.getElementById('modalBody').innerHTML =
+                        '<div class="alert alert-danger">Error al cargar el producto</div>';
+                }
+            })
+            .catch(error => {
+                document.getElementById('modalBody').innerHTML =
+                    '<div class="alert alert-danger">Error de conexión</div>';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('productModal').classList.remove('active');
+    }
+
+    window.onclick = function(event) {
+        const modal = document.getElementById('productModal');
+        if (event.target === modal) {
+            closeModal();
+        }
+    }
+
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>
+{% endblock %}

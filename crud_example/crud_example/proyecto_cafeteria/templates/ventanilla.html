@@ -1,0 +1,416 @@
+{% extends 'base.html' %}
+
+{% block title %}Ventanilla de Entrega - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .ventanilla-container {
+        display: grid;
+        grid-template-columns: 400px 1fr;
+        gap: 2rem;
+        align-items: start;
+    }
+
+    .orders-list {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+        max-height: calc(100vh - 150px);
+        overflow-y: auto;
+        position: sticky;
+        top: 100px;
+    }
+
+    .list-title {
+        font-size: 1.5rem;
+        font-weight: 900;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+    }
+
+    .search-box-mini {
+        margin-bottom: 1.5rem;
+    }
+
+    .search-box-mini input {
+        width: 100%;
+        padding: 1rem;
+        border: 2px solid var(--light);
+        border-radius: 12px;
+        font-size: 1rem;
+    }
+
+    .search-box-mini input:focus {
+        outline: none;
+        border-color: var(--secondary);
+    }
+
+    .order-card-mini {
+        background: #f8f9fa;
+        padding: 1.25rem;
+        border-radius: 12px;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        border: 3px solid transparent;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .order-card-mini:hover {
+        border-color: var(--secondary);
+        transform: translateX(5px);
+    }
+
+    .order-card-mini.active {
+        background: linear-gradient(135deg, var(--secondary), #a29bfe);
+        color: white;
+        border-color: var(--secondary);
+    }
+
+    .order-mini-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .order-mini-number {
+        font-weight: 800;
+        font-size: 1.1rem;
+    }
+
+    .order-mini-customer {
+        color: #636e72;
+        font-size: 0.9rem;
+    }
+
+    .order-card-mini.active .order-mini-customer {
+        color: rgba(255, 255, 255, 0.9);
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .status-pagado {
+        background: rgba(116, 185, 255, 0.2);
+        color: #01579b;
+    }
+
+    .status-en_preparacion {
+        background: rgba(253, 203, 110, 0.2);
+        color: #f57f17;
+    }
+
+    .status-listo {
+        background: rgba(0, 184, 148, 0.2);
+        color: #00695c;
+    }
+
+    .order-detail-panel {
+        background: white;
+        border-radius: 20px;
+        padding: 2.5rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    .detail-header {
+        margin-bottom: 2rem;
+    }
+
+    .detail-number {
+        font-size: 2.5rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-customer {
+        font-size: 1.3rem;
+        color: #636e72;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .order-items-detail {
+        background: #f8f9fa;
+        padding: 2rem;
+        border-radius: 16px;
+        margin: 2rem 0;
+    }
+
+    .items-title {
+        font-size: 1.3rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: var(--dark);
+    }
+
+    .detail-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem 0;
+        border-bottom: 1px solid #e9ecef;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .item-qty-name {
+        font-weight: 700;
+    }
+
+    .item-extras-list {
+        font-size: 0.9rem;
+        color: #636e72;
+        margin-top: 0.25rem;
+    }
+
+    .order-meta {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 1rem;
+        margin: 2rem 0;
+    }
+
+    .meta-card {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 16px;
+        text-align: center;
+    }
+
+    .meta-label {
+        font-size: 0.9rem;
+        opacity: 0.9;
+        margin-bottom: 0.5rem;
+    }
+
+    .meta-value {
+        font-size: 1.8rem;
+        font-weight: 900;
+    }
+
+    .identity-section {
+        background: rgba(253, 203, 110, 0.1);
+        border-left: 4px solid var(--warning);
+        padding: 1.5rem;
+        border-radius: 12px;
+        margin: 2rem 0;
+    }
+
+    .identity-title {
+        font-weight: 800;
+        color: #f57f17;
+        margin-bottom: 0.5rem;
+    }
+
+    .identity-info {
+        color: #636e72;
+    }
+
+    .deliver-btn {
+        width: 100%;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+    }
+
+    .deliver-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
+    }
+
+    .deliver-btn:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    @media (max-width: 1024px) {
+        .ventanilla-container {
+            grid-template-columns: 1fr;
+        }
+
+        .orders-list {
+            position: static;
+            max-height: none;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ventanilla-container">
+    <div class="orders-list">
+        <h1 class="list-title">📦 Pedidos en ventanilla</h1>
+
+        <form method="get" class="search-box-mini">
+            <input type="text"
+                   name="busqueda"
+                   value="{{ busqueda }}"
+                   placeholder="Buscar por número o nombre...">
+        </form>
+
+        {% for p in pedidos %}
+            <a href="?{% if busqueda %}busqueda={{ busqueda }}&{% endif %}pedido={{ p.id }}"
+               class="order-card-mini {% if pedido_detalle and p.id == pedido_detalle.id %}active{% endif %}">
+                <div class="order-mini-header">
+                    <span class="order-mini-number">#{{ p.numero_pedido }}</span>
+                    <span class="status-badge status-{{ p.estado }}">
+                        {{ p.get_estado_display }}
+                    </span>
+                </div>
+                <div class="order-mini-customer">
+                    👤 {{ p.usuario.username }}
+                </div>
+            </a>
+        {% empty %}
+            <p>No hay pedidos pendientes.</p>
+        {% endfor %}
+    </div>
+
+    <div class="order-detail-panel">
+        {% if pedido_detalle %}
+            <div class="detail-header">
+                <div class="detail-number">Pedido #{{ pedido_detalle.numero_pedido }}</div>
+                <div class="detail-customer">
+                    👤 {{ pedido_detalle.usuario.username }}
+                </div>
+            </div>
+
+            <div class="order-items-detail">
+                <div class="items-title">Productos del pedido</div>
+                {% for item in pedido_detalle.items.all %}
+                    <div class="detail-item">
+                        <div>
+                            <div class="item-qty-name">
+                                {{ item.cantidad }} x {{ item.producto.nombre }}
+                            </div>
+                            {% if item.tamano %}
+                            <div class="item-extras-list">📏 {{ item.tamano.nombre }}</div>
+                            {% endif %}
+                            {% if item.extras_seleccionados.all %}
+                            <div class="item-extras-list">
+                                ➕ {% for extra in item.extras_seleccionados.all %}
+                                    {{ extra.nombre }}{% if not forloop.last %}, {% endif %}
+                                   {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if item.personalizacion %}
+                            <div class="item-extras-list">
+                                📝 {{ item.personalizacion }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="item-price">
+                            ${{ item.subtotal|floatformat:0 }}
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="order-meta">
+                <div class="meta-card">
+                    <div class="meta-label">Estado</div>
+                    <div class="meta-value">{{ pedido_detalle.get_estado_display }}</div>
+                </div>
+                <div class="meta-card">
+                    <div class="meta-label">Total</div>
+                    <div class="meta-value">${{ pedido_detalle.total|floatformat:0 }}</div>
+                </div>
+                {% if pedido_detalle.tiempo_estimado %}
+                <div class="meta-card">
+                    <div class="meta-label">Tiempo estimado</div>
+                    <div class="meta-value">~{{ pedido_detalle.tiempo_estimado }} min</div>
+                </div>
+                {% endif %}
+                {% if pedido_detalle.hora_estimada_entrega %}
+                <div class="meta-card">
+                    <div class="meta-label">Hora estimada</div>
+                    <div class="meta-value">
+                        {{ pedido_detalle.hora_estimada_entrega|time:"H:i" }}
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="identity-section">
+                <div class="identity-title">Verificación del estudiante</div>
+                <div class="identity-info">
+                    Verifica el nombre de usuario y el número de pedido antes de entregar.
+                </div>
+            </div>
+
+            {% if pedido_detalle.estado == 'listo' %}
+                <button id="btnEntregar"
+                        class="deliver-btn"
+                        data-entregar-url="{% url 'cafeteria:entregar_pedido' pedido_detalle.id %}">
+                    ✅ Entregar pedido
+                </button>
+            {% else %}
+                <button class="deliver-btn" disabled>
+                    El pedido aún no está listo para entregar
+                </button>
+            {% endif %}
+        {% else %}
+            <p>Selecciona un pedido de la lista para ver los detalles.</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const btnEntregar = document.getElementById('btnEntregar');
+
+    if (btnEntregar) {
+        btnEntregar.addEventListener('click', function () {
+            if (!confirm('¿Confirmar la entrega de este pedido?')) return;
+
+            const url = btnEntregar.dataset.entregarUrl;
+            const formData = new FormData();
+            formData.append('confirmacion', 'confirmar');
+
+            fetch(url, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrftoken,
+                    'X-Requested-With': 'XMLHttpRequest',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('✅ Pedido entregado exitosamente');
+                    // Recargar la página para actualizar la lista
+                    window.location.href = window.location.pathname + window.location.search;
+                } else {
+                    alert('❌ ' + (data.error || 'No se pudo entregar el pedido'));
+                }
+            })
+            .catch(error => {
+                console.error(error);
+                alert('❌ Error de conexión');
+            });
+        });
+    }
+</script>
+{% endblock %}

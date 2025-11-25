@@ -1,0 +1,484 @@
+{% extends 'base.html' %}
+
+{% block title %}Resumen de Pago - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .payment-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .payment-card {
+        background: white;
+        border-radius: 24px;
+        padding: 2.5rem;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .section-title {
+        font-size: 1.8rem;
+        font-weight: 900;
+        color: var(--dark);
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .order-items {
+        margin-bottom: 2rem;
+    }
+
+    .order-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 12px;
+        margin-bottom: 0.75rem;
+    }
+
+    .item-info {
+        flex: 1;
+    }
+
+    .item-qty {
+        font-weight: 800;
+        color: var(--secondary);
+        margin-right: 0.75rem;
+    }
+
+    .item-name {
+        font-weight: 700;
+        color: var(--dark);
+    }
+
+    .item-details {
+        font-size: 0.9rem;
+        color: #636e72;
+        margin-top: 0.25rem;
+    }
+
+    .item-price {
+        font-weight: 800;
+        color: var(--success);
+        font-size: 1.1rem;
+    }
+
+    .summary-totals {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin: 2rem 0;
+    }
+
+    .total-line {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .total-line:last-child {
+        border-bottom: none;
+        padding-top: 1.5rem;
+        margin-top: 0.5rem;
+        border-top: 2px solid rgba(255, 255, 255, 0.3);
+        font-size: 1.5rem;
+        font-weight: 900;
+    }
+
+    .promo-applied {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 1rem;
+        border-radius: 12px;
+        margin: 1rem 0;
+        text-align: center;
+        font-weight: 700;
+    }
+
+    .delivery-section {
+        margin: 2rem 0;
+    }
+
+    .time-slots {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .time-slot {
+        position: relative;
+    }
+
+    .time-slot input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .time-slot label {
+        display: block;
+        padding: 1.25rem;
+        background: #f8f9fa;
+        border: 3px solid #e9ecef;
+        border-radius: 16px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-weight: 700;
+    }
+
+    .time-slot input[type="radio"]:checked + label {
+        background: linear-gradient(135deg, var(--secondary), #a29bfe);
+        color: white;
+        border-color: var(--secondary);
+        transform: scale(1.05);
+    }
+
+    .time-slot label:hover {
+        border-color: var(--secondary);
+    }
+
+    .payment-methods {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .payment-option {
+        position: relative;
+    }
+
+    .payment-option input[type="radio"] {
+        position: absolute;
+        opacity: 0;
+    }
+
+    .payment-option label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        padding: 1.5rem;
+        background: #f8f9fa;
+        border: 3px solid #e9ecef;
+        border-radius: 16px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .payment-option input[type="radio"]:checked + label {
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        color: white;
+        border-color: var(--success);
+        transform: scale(1.05);
+    }
+
+    .payment-option label:hover {
+        border-color: var(--success);
+    }
+
+    .payment-icon {
+        font-size: 2.5rem;
+    }
+
+    .payment-name {
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn-back {
+        flex: 1;
+        padding: 1.25rem;
+        background: white;
+        color: var(--secondary);
+        border: 3px solid var(--secondary);
+        border-radius: 16px;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-back:hover {
+        background: var(--light);
+    }
+
+    .btn-pay {
+        flex: 2;
+        padding: 1.25rem;
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        color: white;
+        border: none;
+        border-radius: 16px;
+        font-size: 1.2rem;
+        font-weight: 800;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 6px 20px rgba(0, 184, 148, 0.3);
+    }
+
+    .btn-pay:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 30px rgba(0, 184, 148, 0.4);
+    }
+
+    .btn-pay:disabled {
+        background: #95a5a6;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .processing-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        z-index: 9999;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .processing-overlay.active {
+        display: flex;
+    }
+
+    .processing-content {
+        background: white;
+        padding: 3rem;
+        border-radius: 24px;
+        text-align: center;
+        max-width: 400px;
+    }
+
+    .processing-spinner {
+        width: 80px;
+        height: 80px;
+        border: 6px solid var(--light);
+        border-top: 6px solid var(--success);
+        border-radius: 50%;
+        margin: 0 auto 1.5rem;
+        animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to   { transform: rotate(360deg); }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="payment-card">
+        <h1 class="section-title">📋 Resumen de tu pedido</h1>
+
+        <div class="order-items">
+            {% for item in items %}
+            <div class="order-item">
+                <div class="item-info">
+                    <span class="item-qty">{{ item.cantidad }}x</span>
+                    <span class="item-name">{{ item.producto.nombre }}</span>
+
+                    {% if item.tamano %}
+                    <div class="item-details">📏 {{ item.tamano.nombre }}</div>
+                    {% endif %}
+
+                    {% if item.extras_seleccionados.all %}
+                    <div class="item-details">
+                        ➕
+                        {% for extra in item.extras_seleccionados.all %}
+                            {{ extra.nombre }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    {% if item.personalizacion %}
+                    <div class="item-details">📝 {{ item.personalizacion }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="item-price">
+                    ${{ item.get_precio_total|floatformat:0 }}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="summary-totals">
+            <div class="total-line">
+                <span>Subtotal</span>
+                <span>${{ subtotal|floatformat:0 }}</span>
+            </div>
+            <div class="total-line">
+                <span>Impuestos (10%)</span>
+                <span>${{ impuestos|floatformat:0 }}</span>
+            </div>
+
+            {% if descuento > 0 %}
+            <div class="total-line">
+                <span>Descuento</span>
+                <span>-${{ descuento|floatformat:0 }}</span>
+            </div>
+            {% if promocion_aplicada %}
+            <div class="promo-applied">
+                🎓 {{ promocion_aplicada.nombre }}
+            </div>
+            {% endif %}
+            {% endif %}
+
+            <div class="total-line">
+                <span>TOTAL A PAGAR</span>
+                <span>${{ total|floatformat:0 }}</span>
+            </div>
+        </div>
+    </div>
+
+    <form id="paymentForm" method="POST">
+        {% csrf_token %}
+
+        <div class="payment-card">
+            <h2 class="section-title">⏰ ¿Cuándo deseas recoger tu pedido?</h2>
+
+            <div class="time-slots">
+                <div class="time-slot">
+                    <input type="radio" name="franja_entrega" id="ahora" value="ahora" checked>
+                    <label for="ahora">
+                        <div>🚀 Ahora</div>
+                        <small>Lo antes posible</small>
+                    </label>
+                </div>
+                <div class="time-slot">
+                    <input type="radio" name="franja_entrega" id="15min" value="15min">
+                    <label for="15min">
+                        <div>⏱️ 15 min</div>
+                        <small>En 15 minutos</small>
+                    </label>
+                </div>
+                <div class="time-slot">
+                    <input type="radio" name="franja_entrega" id="30min" value="30min">
+                    <label for="30min">
+                        <div>⏱️ 30 min</div>
+                        <small>En 30 minutos</small>
+                    </label>
+                </div>
+                <div class="time-slot">
+                    <input type="radio" name="franja_entrega" id="1hora" value="1hora">
+                    <label for="1hora">
+                        <div>⏱️ 1 hora</div>
+                        <small>En 1 hora</small>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="payment-card">
+            <h2 class="section-title">💳 Método de pago</h2>
+
+            <div class="payment-methods">
+                <div class="payment-option">
+                    <input type="radio" name="metodo_pago" id="tarjeta" value="tarjeta" checked>
+                    <label for="tarjeta">
+                        <div class="payment-icon">💳</div>
+                        <div class="payment-name">Tarjeta</div>
+                    </label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" name="metodo_pago" id="efectivo" value="efectivo">
+                    <label for="efectivo">
+                        <div class="payment-icon">💵</div>
+                        <div class="payment-name">Efectivo</div>
+                    </label>
+                </div>
+                <div class="payment-option">
+                    <input type="radio" name="metodo_pago" id="transferencia" value="transferencia">
+                    <label for="transferencia">
+                        <div class="payment-icon">🏦</div>
+                        <div class="payment-name">Transferencia</div>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'cafeteria:ver_carrito' %}" class="btn-back">← Volver al carrito</a>
+            <button type="submit" class="btn-pay" id="btnPay">
+                Confirmar y pagar ${{ total|floatformat:0 }} →
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Overlay de procesamiento -->
+<div id="processingOverlay" class="processing-overlay">
+    <div class="processing-content">
+        <div class="processing-spinner"></div>
+        <h2>Procesando pago...</h2>
+        <p style="color: #636e72; margin-top: 1rem;">
+            Por favor espera un momento
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Asumo que ya tienes la variable csrftoken definida en base.html
+    // (si no, me dices y te paso también esa parte completa)
+
+    document.getElementById('paymentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const overlay = document.getElementById('processingOverlay');
+        const btnPay = document.getElementById('btnPay');
+
+        btnPay.disabled = true;
+        overlay.classList.add('active');
+
+        const formData = new FormData(this);
+
+        fetch('{% url "cafeteria:procesar_pago" %}', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken,
+                'X-Requested-With': 'XMLHttpRequest',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('✅ Tu pedido ha sido realizado correctamente');
+                window.location.href = data.redirect_url;
+            } else {
+                overlay.classList.remove('active');
+                btnPay.disabled = false;
+                alert('❌ Error al procesar el pago: ' + (data.error || 'Intenta nuevamente'));
+            }
+        })
+        .catch(error => {
+            overlay.classList.remove('active');
+            btnPay.disabled = false;
+            alert('❌ Error de conexión. Por favor intenta nuevamente.');
+            console.error('Error:', error);
+        });
+    });
+</script>
+{% endblock %}
+

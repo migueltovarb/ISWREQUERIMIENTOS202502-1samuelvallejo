@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Pedido Confirmado - Cafetería{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirmation-container { max-width: 700px; margin: 0 auto; text-align: center; }
+    .success-icon {
+        width: 120px; height: 120px;
+        background: linear-gradient(135deg, var(--success), #55efc4);
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
+        margin: 0 auto 2rem; font-size: 4rem;
+        animation: successPop 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    }
+    @keyframes successPop { 0% { transform: scale(0); opacity: 0; } 50% { transform: scale(1.1); } 100% { transform: scale(1); opacity: 1; } }
+    .confirmation-card { background: white; border-radius: 24px; padding: 3rem; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 2rem; }
+    .confirmation-title { font-size: 2.5rem; font-weight: 900; color: var(--dark); margin-bottom: 1rem; }
+    .confirmation-subtitle { color: #636e72; font-size: 1.1rem; margin-bottom: 2rem; }
+    .order-number { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 1.5rem; border-radius: 16px; margin: 2rem 0; }
+    .order-number-label { font-size: 0.9rem; opacity: 0.9; margin-bottom: 0.5rem; }
+    .order-number-value { font-size: 2rem; font-weight: 900; letter-spacing: 2px; }
+    .order-details { background: #f8f9fa; padding: 2rem; border-radius: 16px; margin: 2rem 0; }
+    .detail-row { display: flex; justify-content: space-between; padding: 1rem 0; border-bottom: 1px solid #e9ecef; }
+    .detail-row:last-child { border-bottom: none; }
+    .detail-label { color: #636e72; font-weight: 600; }
+    .detail-value { font-weight: 800; color: var(--dark); }
+    .eta-display { background: linear-gradient(135deg, var(--info), #a29bfe); color: white; padding: 2rem; border-radius: 16px; margin: 2rem 0; }
+    .eta-time { font-size: 3rem; font-weight: 900; margin: 0.5rem 0; }
+    .action-group { display: flex; gap: 1rem; margin-top: 2rem; }
+    .btn-secondary-action, .btn-primary-action { flex: 1; padding: 1.25rem; border-radius: 16px; font-weight: 800; text-decoration: none; transition: all 0.3s ease; }
+    .btn-secondary-action { background: white; color: var(--secondary); border: 3px solid var(--secondary); }
+    .btn-secondary-action:hover { background: var(--light); }
+    .btn-primary-action { background: linear-gradient(135deg, var(--success), #55efc4); color: white; border: none; box-shadow: 0 6px 20px rgba(0,184,148,0.3); }
+    .btn-primary-action:hover { transform: translateY(-3px); box-shadow: 0 10px 30px rgba(0,184,148,0.4); }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="confirmation-container">
+    <div class="success-icon">✔</div>
+    
+    <div class="confirmation-card">
+        <h1 class="confirmation-title">¡Pedido Confirmado!</h1>
+        <p class="confirmation-subtitle">Tu pago ha sido procesado exitosamente</p>
+
+        <div class="order-number">
+            <div class="order-number-label">Número de pedido</div>
+            <div class="order-number-value">{{ pedido.numero_pedido }}</div>
+        </div>
+
+        <div class="order-details">
+            <div class="detail-row">
+                <span class="detail-label">Estado</span>
+                <span class="detail-value" style="color: var(--success);">✔ {{ pedido.get_estado_display }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Método de pago</span>
+                <span class="detail-value">{{ pedido.metodo_pago|title }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Total pagado</span>
+                <span class="detail-value" style="color: var(--success); font-size: 1.3rem;">${{ pedido.total|floatformat:0 }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Fecha</span>
+                <span class="detail-value">{{ pedido.fecha_creacion|date:"d/m/Y H:i" }}</span>
+            </div>
+        </div>
+
+        <div class="eta-display">
+            <div>⏱ Tiempo estimado de preparación</div>
+            <div class="eta-time">~{{ pedido.tiempo_estimado }} min</div>
+            {% if pedido.hora_estimada_entrega %}
+            <div>Listo aproximadamente a las {{ pedido.hora_estimada_entrega|time:"H:i" }}</div>
+            {% endif %}
+        </div>
+
+        <div class="alert alert-info">
+            🔔 Recibirás una notificación cuando tu pedido esté listo para recoger
+        </div>
+
+        <div class="action-group">
+            <a href="{% url 'cafeteria:menu_principal' %}" class="btn-secondary-action">🏠 Volver al inicio</a>
+            <a href="{% url 'cafeteria:mis_pedidos' %}" class="btn-primary-action">📄 Ver mis pedidos</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
